@@ -4,26 +4,35 @@
         <p>Marca: {{ brand }}</p>
         <p>Modelo: {{ model }}</p>
         <p>Potencia: {{ power }}</p>
+        <button @click="upPower">Aumentar</button>
+        <button @click="downPowerFn">Disminuir</button>
     </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-
 export default {
     props: {
         power: {
             type: Number,
             default: 60,
-        }
+        },
+        upPower: Function,
     },
-    setup(props) {
+    emits: ["downPower"],
+    setup(props, context) {
         const brand = "Audi";
         const model = "A4";
 
+        const downPowerFn = () => {
+            context.emit("downPower")
+        }
         console.log(props.power)
+        
+        // const testPower = () => {
+        //     props.upPower();
+        // }
 
-        return { brand, model }
+        return { brand, model, downPowerFn }
     }
 }
 </script>
