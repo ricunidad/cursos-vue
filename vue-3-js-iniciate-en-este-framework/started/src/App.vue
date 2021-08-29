@@ -1,20 +1,19 @@
 <template>
   <h1>Vue JS</h1>
-  <h1>API  de Opciones</h1>
-  <CarOptions />
-  <hr/>
-  <h1>Composition API</h1>
-  <CarComposition />
+  <Car :power="power"/>
 </template>
 
 <script>
-import CarComposition from './components/CarComposition.vue'
-import CarOptions from './components/CarOptions.vue';
+import Car from './components/Car.vue'
 
 export default {
   components: {
-    CarOptions,
-    CarComposition,
+    Car,
+  },
+  setup() {
+    let power = 30;
+
+    return { power }
   }
 }
 </script>
