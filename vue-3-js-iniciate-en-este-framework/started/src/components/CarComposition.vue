@@ -1,4 +1,5 @@
 <template>
+<div>
   <h2>Coche</h2>
   <p>Marca: {{ brand }}</p>
   <p>Modelo: {{ model }}</p>
@@ -40,46 +41,51 @@
       </template>
   </ul>
 
-  <p>Potencias</p>
+  <p>Potencia: {{ power }}</p>
+
+  <!-- <p>Potencias</p>
   <ul>
       <template v-for="(power, index) in powers" :key="index">
           <li v-if="power < 280">Urbana: {{ power }}</li>
           <li v-else-if="power == 280">Hibrido: {{ power }}</li>
           <li v-else >Carrera: {{ power }}</li>
       </template>
-  </ul>
+  </ul> -->
 
-  {{ mensaje.title }} - {{ mensaje.text }}
+  <!-- {{ mensaje.title }} - {{ mensaje.text }} -->
+
+  <button @click="upPower(100)">Aumentar</button>
+  <button @click="downPower(100)">Disminuir</button>
+  </div>
 </template>
 
 <script>
-export default {
-    // data( ) {
-    //     return {
-    //         brand: "Audi",
-    //         model: "A4",
-    //         color: ["Azul", "Rojo", "Verde"],
-    //         price: 38000,
-    //         power: 180,
-    //         mensaje: {
-    //             title: "Hola mundo",
-    //             text: "Adios"
-    //         }
-    //     }
-    // }
+import { ref } from 'vue';
 
+export default {
     setup() {
         const brand = "Audi";
         const model = "A4";
         const colors = ["Azul", "Rojo", "Verde"];
         const price = 42000;
-        const powers = [60, 80, 120, 160, 200, 280, 300, 390, 540, 500];
+        let power = ref(70);
+        //const powers = [60, 80, 120, 160, 200, 280, 300, 390, 540, 500];
         const mensaje = {
                 title: "Estoy bien",
                 text: "Adios"
             }
 
-        return { brand, model, colors, price, powers, mensaje }
+        const upPower = (newPower) => {
+            //console.log("Aumentar potencia..." + newPower)
+            power.value += newPower;
+        };
+
+        const downPower = (newPower) => {
+            //console.log("Bajas potencia..." + newPower)
+            power.value -= newPower;
+        };
+
+        return { brand, model, colors, price, power,  mensaje, upPower, downPower }
     }
 }
 </script>

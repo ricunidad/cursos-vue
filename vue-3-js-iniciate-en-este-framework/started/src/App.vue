@@ -1,14 +1,20 @@
 <template>
   <h1>Vue JS</h1>
-  <Car />
+  <h1>API  de Opciones</h1>
+  <CarOptions />
+  <hr/>
+  <h1>Composition API</h1>
+  <CarComposition />
 </template>
 
 <script>
-import Car from './components/Car.vue';
+import CarComposition from './components/CarComposition.vue'
+import CarOptions from './components/CarOptions.vue';
 
 export default {
   components: {
-    Car,
+    CarOptions,
+    CarComposition,
   }
 }
 </script>
