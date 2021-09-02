@@ -23,6 +23,7 @@
 
   <div class="d-flex flex-column px-3 h-75">
       <textarea
+      v-model="entry.text"
         placeholder="¿Qué sucedió hoy?"
       ></textarea>
   </div>
@@ -39,9 +40,36 @@
 
 <script>
 import { defineAsyncComponent } from 'vue'
+import { mapGetters} from 'vuex'
+
 export default {
+    props: {
+        id: {
+            type: String,
+            required: true
+        }
+    },
     components: {
         Fab: defineAsyncComponent(() => import('../components/Fab.vue'))
+    },
+    data() {
+        return {
+            entry: null
+        }
+    },
+    computed: {
+        ...mapGetters('journal', ['getEntryById']),
+    },
+    methods: {
+        loadEntry(){
+            const entry = this.getEntryById(this.id)
+            if (!entry) this.$router.push({ name: 'no-entry' })
+
+            this.entry = entry
+        }
+    },
+    created() {
+        this.loadEntry()
     }
 }
 </script>
