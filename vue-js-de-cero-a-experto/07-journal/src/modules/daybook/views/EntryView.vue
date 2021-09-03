@@ -1,13 +1,19 @@
 <template>
+    <template v-if="entry">
   <div class="entry-title d-flex justify-content-between p-2">
       <div>
-          <span class="text-success fs-3 fw-bold">02</span>
-          <span class="mx-1 fs-3">Septiembre</span>
-          <span class="mx-2 fs-4 fw-light">2021, Jueves</span>
+          <span class="text-success fs-3 fw-bold">{{ day }}</span>
+          <span class="mx-1 fs-3">{{ month }}</span>
+          <span class="mx-2 fs-4 fw-light">{{ yearDay }}</span>
       </div>
 
       <div>
-          <button class="btn btn-danger mx-2">
+          <input type="file" 
+             @change="onSelectedImage" >
+
+          <button class="btn btn-danger mx-2"
+            v-if="entry.id"
+            @click="onDeleteEntry">
               Borrar
               <i class="fa fa-trash-alt"></i>
           </button>
@@ -30,17 +36,28 @@
 
   <Fab
     icon="far fa-save"
+    @on:click="saveEntry"
   />
 
-  <img 
+  <!-- <img 
     src="https://i.pinimg.com/564x/e0/f6/bf/e0f6bf6d56518e1e7499e2c793a1f7fb.jpg" 
     alt="entry-picture"
+    class="img-thumbnail"> -->
+
+      <img 
+      v-if="localImage"
+    :src="localImage" 
+    alt="entry-picture"
     class="img-thumbnail">
+    </template>
+
 </template>
 
 <script>
 import { defineAsyncComponent } from 'vue'
-import { mapGetters} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+import getDayMonthYear from '../helpers/getDayMonthYear.js'
+import Swal from 'sweetalert2'
 
 export default {
     props: {
@@ -54,22 +71,112 @@ export default {
     },
     data() {
         return {
-            entry: null
+            entry: null,
+            localImage: null,
+            file: null
         }
     },
     computed: {
         ...mapGetters('journal', ['getEntryById']),
+        day(){
+            const { day } = getDayMonthYear(this.entry.date)
+            return day
+        },
+        month(){
+            const { month } = getDayMonthYear(this.entry.date)
+            return month
+        },
+        yearDay (){
+            const { yearDay } = getDayMonthYear(this.entry.date)
+            return yearDay
+        }
     },
     methods: {
+        ...mapActions('journal', ['updateEntry', 'createEntry', 'deleteEntry']),
         loadEntry(){
-            const entry = this.getEntryById(this.id)
-            if (!entry) this.$router.push({ name: 'no-entry' })
+
+            let entry
+
+            if (this.id === 'new') {
+                entry = {
+                    text:'',
+                    date: new Date().getTime()
+                }
+            } else {
+                entry = this.getEntryById(this.id)
+                if (!entry) return this.$router.push({ name: 'no-entry' })
+            }
 
             this.entry = entry
+        },
+        async saveEntry(){
+
+            new Swal({
+                title: 'Espere por favor',
+                allowOutsideClick: false
+            })
+            Swal.showLoading()
+
+            if (this.entry.id) {
+                await this.updateEntry(this.entry)
+            } else {
+                const id = await this.createEntry(this.entry)
+
+                this.$router.push({ name: 'entry', params: { id } })
+            }
+
+            Swal.fire('Guardado', 'Entrada registrada con exito', 'success')
+            
+        },
+        async onDeleteEntry(){
+
+            const { isConfirmed } = await Swal.fire({
+                title: '¿ Está seguro?',
+                text: 'Una vez borrado, no se puede recuperar',
+                showDenyButton: true,
+                confirmButtonText: 'Si, Estoy seguro'
+            })
+
+            if (isConfirmed) {
+                new Swal({
+                    title: 'Espere por favor',
+                    allowOutsideClick: false
+                })
+
+                Swal.showLoading()
+
+                await this.deleteEntry(this.entry.id)
+                this.$router.push({ name: 'no-entry' })
+
+                Swal.fire('Eliminado', '', 'success')
+            }
+
+        },
+        onSelectedImage( event ){
+            const file = event.target.files[0]
+
+            if (!file) {
+                this.localImage = null
+                this.file = null
+                return
+            }
+
+            this.file = file
+
+            const fr = new FileReader()
+
+            fr.onload = () => this.localImage = fr.result
+            fr.readAsDataURL( file )
+            
         }
     },
     created() {
         this.loadEntry()
+    },
+    watch: {
+        id(){
+            this.loadEntry()
+        }
     }
 }
 </script>
