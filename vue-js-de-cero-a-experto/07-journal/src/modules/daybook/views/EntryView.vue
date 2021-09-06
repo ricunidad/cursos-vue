@@ -44,12 +44,13 @@
     @on:click="saveEntry"
   />
 
-  <!-- <img 
-    src="https://i.pinimg.com/564x/e0/f6/bf/e0f6bf6d56518e1e7499e2c793a1f7fb.jpg" 
+    <img 
+    v-if="entry.picture && !localImage"
+    :src="entry.picture" 
     alt="entry-picture"
-    class="img-thumbnail"> -->
+    class="img-thumbnail">
 
-      <img 
+    <img 
       v-if="localImage"
     :src="localImage" 
     alt="entry-picture"
@@ -63,6 +64,8 @@ import { defineAsyncComponent } from 'vue'
 import { mapGetters, mapActions } from 'vuex'
 import getDayMonthYear from '../helpers/getDayMonthYear.js'
 import Swal from 'sweetalert2'
+
+import uploadImage from '../helpers/uploadImage.js'
 
 export default {
     props: {
@@ -122,6 +125,9 @@ export default {
             })
             Swal.showLoading()
 
+            const picture = await uploadImage(this.file)
+            this.entry.picture = picture
+
             if (this.entry.id) {
                 await this.updateEntry(this.entry)
             } else {
@@ -130,8 +136,10 @@ export default {
                 this.$router.push({ name: 'entry', params: { id } })
             }
 
-            Swal.fire('Guardado', 'Entrada registrada con exito', 'success')
-            
+            this.file = null
+            this.localImage = null
+
+            Swal.fire('Guardado', 'Entrada registrada con exito', 'success')            
         },
         async onDeleteEntry(){
 
